@@ -3,7 +3,7 @@ import threading
 
 is_running = True
 
-HOST, PORT = '127.0.0.1', 55550
+HOST, PORT = '127.0.0.1', 55555
 FORMAT = 'utf-8'
 
 nickname = input("Choose a nickname: ")
@@ -15,7 +15,7 @@ def receive():
     while is_running:
         try:
             message = client.recv(1024).decode(FORMAT)
-            if message == "NICK":
+            if message == "<NICK>":
                 client.send(nickname.encode(FORMAT))
             else:
                 print(message)
