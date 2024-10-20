@@ -4,7 +4,7 @@ import threading
 
 is_running = True
 
-HOST, PORT = '127.0.0.1', 55550
+HOST, PORT = '127.0.0.1', 55555
 FORMAT = 'utf-8'
 
 clients = []
@@ -19,6 +19,13 @@ def broadcast(message):
     for client in clients:
         client.send(message)
 
+def shutdown(client):
+    index = clients.index(client)
+    clients.remove(client)
+    client.close()
+    nickname = nicknames[index]
+    nicknames.remove(nickname)
+
 def handle(client):
     index = clients.index(client)
     nickname = nicknames[index]
@@ -28,14 +35,13 @@ def handle(client):
         try:
             # Broadcsting Messages
             message = client.recv(1024)
+            if message.decode(FORMAT) == '/quit':
+                shutdown(client)
             format_message = f"[{timestamp}] {nickname}: {message.decode()}".encode(FORMAT)
             print(format_message.decode(FORMAT))
             broadcast(format_message)
         except:
-            clients.remove(client)
-            client.close()
-            broadcast(f"{nickname} has left the chat.".encode(FORMAT))
-            nicknames.remove(nickname)
+            shutdown(client)
             break
 
 def receive():
@@ -44,13 +50,13 @@ def receive():
         client, address = server.accept()
 
         # Request and store Nicknames
-        client.send('NICK'.encode(FORMAT))
+        client.send('<NICK>'.encode(FORMAT))
         nickname = client.recv(1024).decode(FORMAT)
         nicknames.append(nickname)
         clients.append(client)
 
         # Print connection to console
-        print(f"{nickname} joined from {str(address)}")
+        print(f"{nickname} joined from {str(address[0])}:{str(address[1])}")
         
         broadcast(f"{nickname} has joined the chat!".encode(FORMAT))
         client.send(f"Successfully connected to the server!".encode(FORMAT))
