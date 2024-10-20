@@ -26,10 +26,13 @@ def shutdown(client):
     nickname = nicknames[index]
     nicknames.remove(nickname)
 
+def get_timestamp():
+    timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+    return timestamp
+
 def handle(client):
     index = clients.index(client)
     nickname = nicknames[index]
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     while is_running:
         try:
@@ -37,7 +40,7 @@ def handle(client):
             message = client.recv(1024)
             if message.decode(FORMAT) == '/quit':
                 shutdown(client)
-            format_message = f"[{timestamp}] {nickname}: {message.decode()}".encode(FORMAT)
+            format_message = f"[{get_timestamp()}] {nickname}: {message.decode()}".encode(FORMAT)
             print(format_message.decode(FORMAT))
             broadcast(format_message)
         except:
