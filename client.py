@@ -1,11 +1,9 @@
 import socket
 import threading
 
-is_running = True
-
 stop_event = threading.Event()
 
-HOST, PORT = '127.0.0.1', 55550
+HOST, PORT = '127.0.0.1', 55555
 FORMAT = 'utf-8'
 
 nickname = input("Choose a nickname: ")
