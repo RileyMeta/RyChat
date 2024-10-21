@@ -36,6 +36,18 @@ def shutdown(client):
 def get_timestamp():
     return datetime.datetime.now().strftime('%H:%M:%S')
 
+def get_userlist(client):
+    client.send("User List:".encode(FORMAT))
+    for user in nicknames:
+        client.send(f"{user}\n".encode(FORMAT))
+
+def help_menu(client):
+    prompt = "Server: [Available Commands]"
+    prompt += "\n- /help | Display this menu"
+    prompt += "\n- /list | Display the User List"
+    prompt += "\n- /quit | Exit the program"
+    client.send(prompt.encode(FORMAT))
+
 def handle(client):
     with lock:
         index = clients.index(client)
@@ -44,15 +56,16 @@ def handle(client):
     while is_running:
         try:
             message = client.recv(1024)
-            if message.decode(FORMAT) == '/quit':  # Correct byte-to-string comparison
+            command = message.decode(FORMAT)
+            if command == '/quit':  # Correct byte-to-string comparison
                 shutdown_message = f"[{get_timestamp()}] {nickname} has left the chat.".encode(FORMAT)
                 print(shutdown_message.decode(FORMAT))
                 broadcast(shutdown_message)
                 shutdown(client)
-            elif message.decode(FORMAT) == '/list':
-                client.send("User List:".encode(FORMAT))
-                for user in nicknames:
-                    client.send(f"{user}\n".encode(FORMAT))
+            elif command == '/list':
+                get_userlist(client)
+            elif command == '/help':
+                help_menu(client)
             else:
                 format_message = f"[{get_timestamp()}] {nickname}: {message.decode(FORMAT)}".encode(FORMAT)
                 print(format_message.decode(FORMAT))
