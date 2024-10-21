@@ -5,7 +5,7 @@ import threading
 is_running = True
 lock = threading.Lock()
 
-HOST, PORT = '127.0.0.1', 55550
+HOST, PORT = '127.0.0.1', 55555
 FORMAT = 'utf-8'
 
 clients = []
@@ -49,7 +49,10 @@ def handle(client):
                 print(shutdown_message.decode(FORMAT))
                 broadcast(shutdown_message)
                 shutdown(client)
-                break
+            elif message.decode(FORMAT) == '/list':
+                client.send("User List:".encode(FORMAT))
+                for user in nicknames:
+                    client.send(f"{user}\n".encode(FORMAT))
             else:
                 format_message = f"[{get_timestamp()}] {nickname}: {message.decode(FORMAT)}".encode(FORMAT)
                 print(format_message.decode(FORMAT))
